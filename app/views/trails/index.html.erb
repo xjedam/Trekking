@@ -36,7 +36,6 @@
         google.maps.event.addListener(map, 'click', function(event) {
             placeMarker(event.latLng, true);
         });
-        /*$(function(){chartInit();});*/
 
     }
 
@@ -93,10 +92,7 @@
         }
         drawChart();
     }
-    function chartInit() {
 
-        drawChart();
-    }
     function drawChart() {
         if (line.length > 0) {
             elevationService.getElevationAlongPath({
@@ -148,7 +144,7 @@
 
 				<h2 class="title">Zaznacz swój trail na mapie</h2>
 
-				<p class="meta">Użyj lewego przycisku myszy by dodać lub przesunać punkty traila.</p>
+				<p class="meta">Użyj lewego przycisku myszy by dodać lub przesunać punkty traila. Prawym przyciskiem możesz usuwać węzły.</p>
 
 				<div class="entry">
 
@@ -166,7 +162,6 @@
 				<div class="entry">
 
 					<div id="chart" style="width:600px; height:250px;"></div>
-                    <script type="text/javascript">drawChart();</script>
 
 				</div>
 
@@ -183,33 +178,69 @@
 
 				<li>
 
-					<h2>Zapisz swój trail</h2>
+                    <h2>Zapisz swój trail</h2>
 
-					<div><%= form_for(trail) do |f| %>
-          <% if trail.errors.any? %>
-              <div id="error_explanation">
-                <h2><%= pluralize(@trail.errors.count, "error") %> prohibited this trail from being saved:</h2>
+                     <% if @trail2 %>
+                      <div><%= form_for(@trail2) do |f| %>
+                                  <% if trail.errors.any? %>
+                                      <div id="error_explanation">
+                                        <h2><%= pluralize(@trail.errors.count, "error") %> prohibited this trail from being saved:</h2>
 
-                <ul>
-                  <% trail.errors.full_messages.each do |msg| %>
-                      <li><%= msg %></li>
-                  <% end %>
-                </ul>
-              </div>
-          <% end %>
+                                        <ul>
+                                          <% trail.errors.full_messages.each do |msg| %>
+                                              <li><%= msg %></li>
+                                          <% end %>
+                                        </ul>
+                                      </div>
+                                  <% end %>
 
-          <%= f.submit :value => "Save as" %>
-
-          <%= f.text_field :name, :size => "10" %>
+                                  <%= f.submit :value => "Zapisz jako" %>
 
 
-          <div class="field">
-            <%= f.text_field :locations, :id => "locations", :type => "hidden" %>
-            <br/>
-          </div>
+                                    <%= @trail2.name%>
+                                    <%= f.text_field :name, :size => "10", :value => @trail2.name, :type => "hidden" %>
 
-      <% end %>
-    </div>
+                                  <div class="field">
+                                    <%= f.text_field :locations, :id => "locations", :type => "hidden" %>
+                                    <br/>
+                                  </div>
+
+                              <% end %>
+                            </div>
+                      </li>
+                      <li>
+
+                        <h2>Stwórz własny trail</h2>
+                        <div id="guzik"><%= link_to 'New', trails_url %> </div>
+
+                         <% else %>
+                      <div><%= form_for(trail) do |f| %>
+                              <% if trail.errors.any? %>
+                                  <div id="error_explanation">
+                                    <h2><%= pluralize(@trail.errors.count, "error") %> prohibited this trail from being saved:</h2>
+
+                                    <ul>
+                                      <% trail.errors.full_messages.each do |msg| %>
+                                          <li><%= msg %></li>
+                                      <% end %>
+                                    </ul>
+                                  </div>
+                              <% end %>
+
+                              <%= f.submit :value => "Zapisz jako" %>
+
+                                <%= f.text_field :name, :size => "10" %>
+
+                              <div class="field">
+                                <%= f.text_field :locations, :id => "locations", :type => "hidden" %>
+                                <br/>
+                              </div>
+
+                          <% end %>
+                        </div>
+                    <% end %>
+
+
 
 				</li>
 
@@ -222,9 +253,9 @@
 
           <tr>
 
-          <td class="first"><span><%= trail.name %> </span></td>
-          <td><%= link_to 'Show', trail %> </td>
-          <td><%= link_to 'Destroy', trail, confirm: 'Are you sure?', method: :delete %></td>
+          <th><span><%= trail.name %> </span></th>
+          <td class="second"><%= link_to 'Show', trail %> </td>
+          <td class="third"><%= link_to 'Destroy', trail, confirm: 'Are you sure?', method: :delete %></td>
 
           </tr>
       <% end %>

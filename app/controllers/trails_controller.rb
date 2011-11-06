@@ -34,7 +34,12 @@ class TrailsController < ApplicationController
 
   # GET /trails/1/edit
   def edit
-    @trail = Trail.find(params[:id])
+    @trail2 = Trail.find(params[:id])
+    @trails = Trail.page(params[:page])
+    respond_to do |format|
+      format.html { render action: "index" }
+      format.json { render json: @trail2 }
+    end
   end
 
   # POST /trails
@@ -57,14 +62,16 @@ class TrailsController < ApplicationController
   # PUT /trails/1
   # PUT /trails/1.json
   def update
-    @trail = Trail.find(params[:id])
+    @trail2 = Trail.find(params[:id])
 
     respond_to do |format|
-      if @trail.update_attributes(params[:trail])
-        format.html { redirect_to @trail, notice: 'Trail was successfully updated.' }
+      if @trail2.update_attributes(params[:trail])
+
+        @trails = Trail.page(params[:page])
+        format.html { render action: "index" }
         format.json { head :ok }
       else
-        format.html { render action: "edit" }
+        format.html { render action: "index" }
         format.json { render json: @trail.errors, status: :unprocessable_entity }
       end
     end
