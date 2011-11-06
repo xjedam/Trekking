@@ -1,31 +1,271 @@
-<h1>Listing trails</h1>
+<% trail = Trail.new %>
 
-<table>
-  <tr>
-    <th>Longitude start</th>
-    <th>Latitude start</th>
-    <th>Longitude end</th>
-    <th>Latitude end</th>
-    <th>Map url</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
+<script type="text/javascript"
+        src="http://maps.googleapis.com/maps/api/js?sensor=false">
+</script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 
-<% @trails.each do |trail| %>
-  <tr>
-    <td><%= trail.longitude_start %></td>
-    <td><%= trail.latitude_start %></td>
-    <td><%= trail.longitude_end %></td>
-    <td><%= trail.latitude_end %></td>
-    <td><img src="<%= trail.map_url %>" alt="Chart" /></td>
-    <td><%= link_to 'Show', trail %></td>
-    <td><%= link_to 'Edit', edit_trail_path(trail) %></td>
-    <td><%= link_to 'Destroy', trail, confirm: 'Are you sure?', method: :delete %></td>
-  </tr>
-<% end %>
-</table>
+<script type="text/javascript">
+    google.load("visualization", "1", {packages: ["corechart"]});
+    var map;
+    var chart;
+    var markerList = [];
+    var path;
+    var line;
+    var elevationService;
 
-<br />
 
-<%= link_to 'New Trail', new_trail_path %>
+    function initialize() {
+        elevationService = new google.maps.ElevationService();
+
+        var myOptions = {
+            zoom: 8,
+            center: new google.maps.LatLng(53, 20),
+            mapTypeId: google.maps.MapTypeId.TERRAIN,
+            draggableCursor: 'pointer'
+        };
+        map = new google.maps.Map(document.getElementById("map"),
+                myOptions);
+
+        <% if @trail2 %>
+            var tmp = '<%= h @trail2.locations -%>'
+            loadMarkers(tmp);
+            map.setCenter(markerList[0].position, 9);
+        <% end %>
+        chart = new google.visualization.LineChart(document.getElementById("chart"));
+        google.maps.event.addListener(map, 'click', function(event) {
+            placeMarker(event.latLng, true);
+        });
+        /*$(function(){chartInit();});*/
+
+    }
+
+    function placeMarker(location, isDrawChart) {
+        var marker = new google.maps.Marker({
+            position: location,
+            draggable: true,
+            map: map
+        });
+        google.maps.event.addListener(marker, 'drag', function(event) {
+            redrawLine(markerList);
+        });
+        google.maps.event.addListener(marker, 'dragend', function(event) {
+            drawChart();
+        });
+        google.maps.event.addListener(marker, 'rightclick', function(event) {
+            marker.setMap(null);
+            var index = markerList.indexOf(marker);
+            if(index!=-1) markerList.splice(index, 1);
+            redrawLine(markerList);
+            drawChart();
+        });
+        markerList.push(marker);
+        redrawLine(markerList);
+        if(isDrawChart != null && isDrawChart != false)
+            drawChart();
+    }
+
+    function redrawLine(markerList) {
+        if (path)
+            path.setMap(null);
+        line = [];
+        $.each(markerList, function(index, marker) {
+            line.push(marker.position);
+        });
+        path = new google.maps.Polyline({
+            path: line
+        });
+        path.setMap(map);
+        document.getElementById("locations").value = line;
+
+    }
+
+    function loadMarkers(locations) {
+        var table = [];
+        var tmpstr = locations.split("(");
+        for (var i = 0; i < tmpstr.length; i++) {
+            var s = tmpstr[i].split(" ");
+            var f1 = parseFloat(s[0]);
+            var f2 = parseFloat(s[1]);
+            if (!isNaN(f1) && !isNaN(f2)) {
+                placeMarker(new google.maps.LatLng(f1, f2));
+            }
+        }
+        drawChart();
+    }
+    function chartInit() {
+
+        drawChart();
+    }
+    function drawChart() {
+        if (line.length > 0) {
+            elevationService.getElevationAlongPath({
+                        path: line,
+                        samples: 100},
+                    function(result) {
+                        if (result != null) {
+
+                            var data = new google.visualization.DataTable();
+                            data.addColumn('string', 'Path');
+                            data.addColumn('number', 'Elevation');
+                            for (var i = 0; i < result.length; i++) {
+                                data.addRow(["", result[i].elevation]);
+
+                            }
+                            chart.draw(data, {width: 600, height: 250, title: 'Elevation', legend: 'none'});
+                        }
+                    });
+        }
+    }
+
+
+</script>
+
+
+<div id="wrapper">
+
+	<div id="header">
+
+		<div id="logo">
+
+			<h1><a href="#">Trekking</a></h1>
+
+			<p>Zaplanuj swą podróż, a następnie... </p>
+			<p>dalej siedź przy komputerze!</p>
+		</div>
+
+	</div>
+
+	<!-- end #header -->
+
+	<div id="menu">	</div>
+
+	<!-- end #menu -->
+
+	<div id="page">
+		<div id="content">
+			<div class="post">
+
+				<h2 class="title">Zaznacz swój trail na mapie</h2>
+
+				<p class="meta">Użyj lewego przycisku myszy by dodać lub przesunać punkty traila.</p>
+
+				<div class="entry">
+
+					<div id="map" style="width:600px; height:500px;"></div>
+
+				</div>
+
+			</div>
+			<div class="post">
+
+				<h2 class="title">Odczytaj altitudes z wykresu</h2>
+
+				<p class="meta">Na wykresie orbazowana jest wysokość położenia człowieka idącego trasą.</p>
+
+				<div class="entry">
+
+					<div id="chart" style="width:600px; height:250px;"></div>
+                    <script type="text/javascript">drawChart();</script>
+
+				</div>
+
+			</div>
+			<div style="clear: both;">&nbsp;</div>
+
+		</div>
+
+		<!-- end #content -->
+
+		<div id="sidebar">
+
+			<ul>
+
+				<li>
+
+					<h2>Zapisz swój trail</h2>
+
+					<div><%= form_for(trail) do |f| %>
+          <% if trail.errors.any? %>
+              <div id="error_explanation">
+                <h2><%= pluralize(@trail.errors.count, "error") %> prohibited this trail from being saved:</h2>
+
+                <ul>
+                  <% trail.errors.full_messages.each do |msg| %>
+                      <li><%= msg %></li>
+                  <% end %>
+                </ul>
+              </div>
+          <% end %>
+
+          <%= f.submit :value => "Save as" %>
+
+          <%= f.text_field :name, :size => "10" %>
+
+
+          <div class="field">
+            <%= f.text_field :locations, :id => "locations", :type => "hidden" %>
+            <br/>
+          </div>
+
+      <% end %>
+    </div>
+
+				</li>
+
+				<li>
+
+					<h2>Zapisane traile</h2>
+
+					<table>
+      <% @trails.each do |trail| %>
+
+          <tr>
+
+          <td class="first"><span><%= trail.name %> </span></td>
+          <td><%= link_to 'Show', trail %> </td>
+          <td><%= link_to 'Destroy', trail, confirm: 'Are you sure?', method: :delete %></td>
+
+          </tr>
+      <% end %>
+      </table>
+      <%= paginate @trails %>
+
+				</li>
+
+			</ul>
+
+		</div>
+
+		<!-- end #sidebar -->
+
+		<div style="clear: both;">&nbsp;</div>
+
+	</div>
+
+	<!-- end #page -->
+
+</div>
+
+<div id="footer-content">
+
+	<div class="column1">
+
+	<p>Aplikacja <strong>trekking</strong>  została wykonana tylko i wyłącznie na potrzeby ćwiczeń z "Architektury serwisów internetowych". Jej wykorzystanie do innych celów jest pod groźbą kary zabronione. Dodawanie trailsów o nazwach obleśnych i łamiących zasady dobrego zachowania - zabronione. Jeśli to czytasz, najlepiej wyjdź z tej strony. A, i wyczyść ciasteczka, bo dodałem tam włąśnie malicious code. Buahaha.</p>
+
+	</div>
+
+
+</div>
+
+<div id="footer">
+
+	<p> (c) 2009 Sitename.com. Design by <a href="http://www.nodethirtythree.com">nodethirtythree</a> and <a href="http://www.freecsstemplates.org">Free CSS Templates</a>.</p>
+
+</div>
+
+<!-- end #footer -->
+
+</body>
+
+</html>
