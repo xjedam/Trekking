@@ -87,7 +87,7 @@ h2 a {
 }
 
 #logo h1, #logo p {
-
+	margin: 0;
 	padding: 0;
 	font-family: Georgia, "Times New Roman", Times, serif;
 }
@@ -96,7 +96,6 @@ h2 a {
 	letter-spacing: -1px;
 	text-transform: lowercase;
 	font-size: 44px;
-    margin: 0px 0px 10px 0px;
 }
 
 #logo h1 a {
@@ -104,8 +103,8 @@ h2 a {
 }
 
 #logo p {
-	margin: -20px 0px 0px 0px;
-	padding: 35px 0 0 2px;
+	margin: -30px 0px 0px 0px;
+	padding: 26px 0 0 2px;
 	font: normal 19px Georgia, "Times New Roman", Times, serif;
 	color: #C5E8FF;
 } 
@@ -243,7 +242,7 @@ h2 a {
 .post .meta {
 	margin: -10px 0px -10px 0px;
 	padding: 0px 0px 10px 0px;
-	font-size: 16px;
+	font-size: 12px;
 	font-weight: normal;
 	color: #6E8D3D;
 	font-family: Georgia, "Times New Roman", Times, serif;
@@ -286,6 +285,15 @@ h2 a {
 	font-weight: normal;
 }
 
+#guzik {
+    background: url(images/zielguzik.jpg) no-repeat;
+    padding-bottom: 10px;
+    padding-left: 25px;
+    padding-top: 2px;
+}
+#guzik a {
+      text-decoration: none;
+}
 
 /* Sidebar */
 
@@ -327,7 +335,7 @@ h2 a {
 	font-size: 12px;
 	color: #FFFFFF;
 }*/
-
+/*
 #sidebar li table .first{
 	height: 19px;
 	margin-right: 16px;
@@ -335,15 +343,35 @@ h2 a {
 	background: #3D2A0B url(images/img12.jpg) repeat-x left top;
 	font-size: 12px;
 	color: #FFFFFF;
-}
+}*/
 
-#sidebar li table td{
+
+
+/*#sidebar li table td{
 	height: 19px;
 	margin-right: 16px;
 	padding: 4px 12px;
 	background: #d5e987;
 	font-size: 12px;
 	color: #FFFFFF;
+}*/
+#sidebar li table .second{
+    width: 50px;
+	background: url(images/zielguzik-mini.jpg) no-repeat;
+    padding-bottom: 10px;
+    padding-left: 12px;
+    padding-top: 2px;
+}
+
+#sidebar li table .third{
+    width: 55px;
+	background: url(images/zielguzik-mini.jpg) no-repeat;
+    padding-bottom: 10px;
+    padding-left: 7px;
+    padding-top: 2px;
+}
+#sidebar li table td a {
+      text-decoration: none;
 }
 
 /*#sidebar li li div .x{
